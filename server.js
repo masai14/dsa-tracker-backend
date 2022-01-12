@@ -22,5 +22,5 @@ mongoose.connection.on("connected", (err, res) => {
 });
 
 //sample routes 
-const dummyController = require("./src/controllers/dummy.controller.js");
-app.use("/dummy", dummyController);
+const questionController = require("./src/controllers/question.controller.js");
+app.use("/question", questionController);
