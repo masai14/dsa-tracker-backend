@@ -80,7 +80,7 @@ router.delete("/:id", async (request, response) => {
 
 
 //get specific user by email, password (login)
-router.get("/auth/login", async (request, response) => {
+router.post("/auth/login", async (request, response) => {
     try {
         const { email, password } = request.body;
         const results = await User.findOne({ email, password });
