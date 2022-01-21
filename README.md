@@ -14,3 +14,7 @@ backend for dsa tracker
 - commit and push changes to your branch
 - create pull request 
 - once approved by other team members will be merged into main
+
+# Deployed link
+DSA tracker API - https://dsa-tracker-api.herokuapp.com/
+heroku git link - https://git.heroku.com/dsa-tracker-api.git
