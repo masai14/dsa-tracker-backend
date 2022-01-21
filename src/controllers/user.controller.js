@@ -34,18 +34,6 @@ router.get("/:id", async (request, response) => {
     }
 });
 
-//get specific user by email, password (login)
-router.get("/login", async (request, response) => {
-    try {
-        const results = await User.find(request.body);
-        console.log(results);
-        return response.send(results);
-    }
-    catch (err) {
-        response.status(401).send(err.message);
-    }
-});
-
 //create User
 router.post("/", async (request, response) => {
     try {
@@ -82,6 +70,21 @@ router.patch("/:id", async (request, response) => {
 router.delete("/:id", async (request, response) => {
     try {
         const results = await User.findByIdAndDelete(request.params.id);
+        console.log(results);
+        return response.send(results);
+    }
+    catch (err) {
+        response.status(401).send(err.message);
+    }
+});
+
+
+//get specific user by email, password (login)
+router.get("/auth/login", async (request, response) => {
+    try {
+        const { email, password } = request.body;
+        const results = await User.findOne({ email, password });
+        if(!results) return response.status(400).send("Invalid email or password");
         console.log(results);
         return response.send(results);
     }
