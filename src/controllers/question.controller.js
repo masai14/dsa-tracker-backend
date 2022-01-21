@@ -75,8 +75,8 @@ router.get("/user/:userid", async (request, response) => {
     try {
 
         //user id needs to be passed in the request body
-        const { userId } = request.params;
-        if(!userId) return response.status(400).send("User id is required");
+        const { userid } = request.params;
+        if(!userid) return response.status(400).send("User id is required");
 
         const results = await Question.find({ userId: request.params.userid });
         console.log(results);
