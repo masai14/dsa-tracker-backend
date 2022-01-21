@@ -23,4 +23,6 @@ mongoose.connection.on("connected", (err, res) => {
 
 //sample routes 
 const questionController = require("./src/controllers/question.controller.js");
+const userController = require("./src/controllers/user.controller.js");
 app.use("/question", questionController);
+app.use("/user", userController);
