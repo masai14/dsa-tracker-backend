@@ -1,11 +1,11 @@
-//QUESTION CONTROLLER
+//USER CONTROLLER
 
 //create a router
 const express = require("express");
 const router = express.Router();
 
 //getting model
-const Question = require("../models/question.model.js");
+const User = require("../models/user.model.js");
 
 //Http Verbs will come here GET, GET by id, POST, PATCH, DELETE
 
@@ -13,7 +13,7 @@ const Question = require("../models/question.model.js");
 
 router.get("/", async (request, response) => {
     try {
-        const results = await Question.find().lean().exec();
+        const results = await User.find().lean().exec();
         console.log(results);
         return response.send(results);
     }
@@ -22,10 +22,10 @@ router.get("/", async (request, response) => {
     }
 });
 
-//get specific Question by id
+//get specific user by id
 router.get("/:id", async (request, response) => {
     try {
-        const results = await Question.findById(request.params.id);
+        const results = await User.findById(request.params.id);
         console.log(results);
         return response.send(results);
     }
@@ -34,11 +34,19 @@ router.get("/:id", async (request, response) => {
     }
 });
 
-
-//create Question
+//create User
 router.post("/", async (request, response) => {
     try {
-        const results = await Question.create(request.body);
+
+        //check if email already exists
+        const { email } = request.body;
+
+        let user = await User.findOne({ email });
+        console.log("printing user -> " + user);
+        if (user) return response.status(400).send("User already registered.");
+
+        //safely create new user
+        const results = await User.create(request.body);
         return response.send(results);
     }
     catch (err) {
@@ -46,10 +54,10 @@ router.post("/", async (request, response) => {
     }
 });
 
-//update Question by id
+//update User by id
 router.patch("/:id", async (request, response) => {
     try {
-        const results = await Question.findByIdAndUpdate(request.params.id, request.body, { new: true });
+        const results = await User.findByIdAndUpdate(request.params.id, request.body, { new: true });
         console.log(results);
         return response.send(results);
     }
@@ -58,10 +66,10 @@ router.patch("/:id", async (request, response) => {
     }
 });
 
-// delete question by id
+// delete User by id
 router.delete("/:id", async (request, response) => {
     try {
-        const results = await Question.findByIdAndDelete(request.params.id);
+        const results = await User.findByIdAndDelete(request.params.id);
         console.log(results);
         return response.send(results);
     }
@@ -70,17 +78,14 @@ router.delete("/:id", async (request, response) => {
     }
 });
 
-//get all questions for a user by userId
-router.get("/user/questions", async (request, response) => {
+
+//get specific user by email, password (login)
+router.get("/auth/login", async (request, response) => {
     try {
-
-        //user id needs to be passed in the request body
-        const { userId } = request.body;
-        if(!userId) return response.status(400).send("User id is required");
-
-        const results = await Question.find(request.body);
+        const { email, password } = request.body;
+        const results = await User.findOne({ email, password });
+        if(!results) return response.status(400).send("Invalid email or password");
         console.log(results);
-        if(results.length === 0) return response.status(400).send("No questions found for this user");
         return response.send(results);
     }
     catch (err) {
