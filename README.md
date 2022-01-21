@@ -38,4 +38,3 @@ heroku git link - https://git.heroku.com/dsa-tracker-api.git
 - update a question ~ https://dsa-tracker-api.herokuapp.com/question/:id (PATCH - body needs to be passed {question fields})
 - create a question ~ https://dsa-tracker-api.herokuapp.com/user (POST - body needs to be passed {question fields})
 - get questions of a specific user ~ https://dsa-tracker-api.herokuapp.com/question/user/:userid (GET)
-- 
