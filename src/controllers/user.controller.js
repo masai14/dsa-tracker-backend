@@ -49,6 +49,15 @@ router.get("/login", async (request, response) => {
 //create User
 router.post("/", async (request, response) => {
     try {
+
+        //check if email already exists
+        const { email } = request.body;
+
+        let user = await User.findOne({ email });
+        console.log("printing user -> " + user);
+        if (user) return response.status(400).send("User already registered.");
+
+        //safely create new user
         const results = await User.create(request.body);
         return response.send(results);
     }
