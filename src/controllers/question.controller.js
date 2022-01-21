@@ -71,14 +71,14 @@ router.delete("/:id", async (request, response) => {
 });
 
 //get all questions for a user by userId
-router.get("/user/questions", async (request, response) => {
+router.get("/user/:userid", async (request, response) => {
     try {
 
         //user id needs to be passed in the request body
-        const { userId } = request.body;
+        const { userId } = request.params;
         if(!userId) return response.status(400).send("User id is required");
 
-        const results = await Question.find(request.body);
+        const results = await Question.find({ userId: request.params.userid });
         console.log(results);
         if(results.length === 0) return response.status(400).send("No questions found for this user");
         return response.send(results);
