@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "nodemon server.js"
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   "homepage": "https://github.com/masai14/dsa-tracker-backend#readme",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^14.2.0",
     "express": "^4.17.1",
     "mongoose": "^5.11.15",
     "nodemon": "^2.0.15"

@@ -1,21 +1,20 @@
 // GLOBAL CONFIG ENVIRONMENT VARIABLES
-
-
+require("dotenv").config();
 //server host name
 const HOST = "localhost";
 
-//remote database name
-const DATABASE = "DSATracker";
+// //remote database name
+// const DATABASE = "DSATracker";
 
-//database credentials
-const USERNAME = "dsatracker";
-const PASSWORD = "dsatracker";
+// //database credentials
+// const USERNAME = "dsatracker";
+// const PASSWORD = "dsatracker";
 
 //default app port
-const PORT = 2345;
+const PORT = process.env.PORT;
 
 //default connection url
-const DEFAULT_CONNECTION_STRING = `mongodb+srv://${USERNAME}:${PASSWORD}@dsatracker.1osbv.mongodb.net/${DATABASE}?retryWrites=true&w=majority`; 
+const DEFAULT_CONNECTION_STRING = process.env.MONGODB_URL; 
 
 //mongoose options for connection
 const MONGOOSE_OPTIONS = {
@@ -25,4 +24,4 @@ const MONGOOSE_OPTIONS = {
     useNewUrlParser:true
 }
 
-module.exports = {HOST, PORT, DATABASE, USERNAME, PASSWORD, DEFAULT_CONNECTION_STRING, MONGOOSE_OPTIONS}
+module.exports = {HOST, PORT, DEFAULT_CONNECTION_STRING, MONGOOSE_OPTIONS}
