@@ -34,6 +34,7 @@ router.get("/:id", async (request, response) => {
     }
 });
 
+
 //create Question
 router.post("/", async (request, response) => {
     try {
@@ -61,6 +62,20 @@ router.patch("/:id", async (request, response) => {
 router.delete("/:id", async (request, response) => {
     try {
         const results = await Question.findByIdAndDelete(request.params.id);
+        console.log(results);
+        return response.send(results);
+    }
+    catch (err) {
+        response.status(401).send(err.message);
+    }
+});
+
+//get all questions for a user by userId
+router.get("/user/questions", async (request, response) => {
+    try {
+
+        //user id needs to be passed in the request body
+        const results = await Question.find(request.body);
         console.log(results);
         return response.send(results);
     }

@@ -34,6 +34,18 @@ router.get("/:id", async (request, response) => {
     }
 });
 
+//get specific user by email, password (login)
+router.get("/login", async (request, response) => {
+    try {
+        const results = await User.find(request.body);
+        console.log(results);
+        return response.send(results);
+    }
+    catch (err) {
+        response.status(401).send(err.message);
+    }
+});
+
 //create User
 router.post("/", async (request, response) => {
     try {
