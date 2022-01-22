@@ -15,7 +15,7 @@ const userSchema = new Schema({
     leetcode: { type: String },
     hackerrank: { type: String }
 
-}, {timestamps: false, versionKey: false});
+}, {timestamps: true, versionKey: false});
 
 //creating model for user
 const User = mongoose.model("User", userSchema);

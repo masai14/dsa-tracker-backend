@@ -47,7 +47,7 @@ router.post("/", async (request, response) => {
 
         //safely create new user
         const results = await User.create(request.body);
-        return response.send(results);
+        return response.send(JSON.stringify(results));
     }
     catch (err) {
         response.status(401).send(err.message);
