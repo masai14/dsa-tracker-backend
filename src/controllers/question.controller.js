@@ -15,7 +15,7 @@ router.get("/", async (request, response) => {
     try {
         const results = await Question.find().lean().exec();
         console.log(results);
-        return response.send(results);
+        return response.send(JSON.stringify(results));
     }
     catch (err) {
         response.status(401).send(err.message);
@@ -27,7 +27,7 @@ router.get("/:id", async (request, response) => {
     try {
         const results = await Question.findById(request.params.id);
         console.log(results);
-        return response.send(results);
+        return response.send(JSON.stringify(results));
     }
     catch (err) {
         response.status(401).send(err.message);
@@ -39,7 +39,7 @@ router.get("/:id", async (request, response) => {
 router.post("/", async (request, response) => {
     try {
         const results = await Question.create(request.body);
-        return response.send(results);
+        return response.send(JSON.stringify(results));
     }
     catch (err) {
         response.status(401).send(err.message);
@@ -51,7 +51,7 @@ router.patch("/:id", async (request, response) => {
     try {
         const results = await Question.findByIdAndUpdate(request.params.id, request.body, { new: true });
         console.log(results);
-        return response.send(results);
+        return response.send(JSON.stringify(results));
     }
     catch (err) {
         response.status(401).send(err.message);
@@ -63,7 +63,7 @@ router.delete("/:id", async (request, response) => {
     try {
         const results = await Question.findByIdAndDelete(request.params.id);
         console.log(results);
-        return response.send(results);
+        return response.send(JSON.stringify(results));
     }
     catch (err) {
         response.status(401).send(err.message);
@@ -81,7 +81,7 @@ router.get("/user/:userid", async (request, response) => {
         const results = await Question.find({ userId: request.params.userid });
         console.log(results);
         if(results.length === 0) return response.status(400).send("No questions found for this user");
-        return response.send(results);
+        return response.send(JSON.stringify(results));
     }
     catch (err) {
         response.status(401).send(err.message);
