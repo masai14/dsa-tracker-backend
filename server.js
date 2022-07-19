@@ -1,5 +1,5 @@
 //config data
-const {DEFAULT_CONNECTION_STRING, PORT, MONGOOSE_OPTIONS} = require("./src/config/config");
+const { DEFAULT_CONNECTION_STRING, PORT, MONGOOSE_OPTIONS } = require("./src/config/config");
 
 //connect to express
 const express = require("express");
@@ -18,11 +18,15 @@ mongoose.connection.on("error", err => {
   console.log("Connection Error. DSA Tracker Web App could not successfully connect to Mongoose.", err);
 });
 mongoose.connection.on("connected", (err, res) => {
-    console.log("DSA Tracker Web App connected successfully to Mongoose.");
+  console.log("DSA Tracker Web App connected successfully to Mongoose.");
 });
 
 //sample routes 
 const questionController = require("./src/controllers/question.controller.js");
 const userController = require("./src/controllers/user.controller.js");
+const { register, login } = require('./src/controllers/auth.controller.js');
+// we are not using the form-data, so no need of multer middileware for parsing the data express.json() will take care of that.
+app.post('/register', register);
+app.post('/login', login);
 app.use("/question", questionController);
 app.use("/user", userController);
