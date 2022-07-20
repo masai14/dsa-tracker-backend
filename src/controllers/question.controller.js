@@ -76,7 +76,7 @@ router.delete("/:id", authenticate, authorize(['user', 'admin', 'superAdmin']), 
 });
 
 //get all questions for a user by userId
-router.get("/user/questions", authenticate, authorise(['user', 'admin', 'superAdmin']), async (request, response) => {
+router.get("/user/questions", authenticate, authorize(['user', 'admin', 'superAdmin']), async (request, response) => {
     try {
 
         //user id needs to be passed in the request body
