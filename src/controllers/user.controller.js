@@ -24,6 +24,15 @@ router.get("/", authenticate, authorize(['admin', 'superAdmin']), async (request
     }
 });
 
+router.get("/check", authenticate, async (request, response) => {// authenticate, authorize
+    try {
+        return response.send({ message: true });
+    }
+    catch (err) {
+        response.send({ message: false });
+    }
+});
+
 //get specific user by id
 router.get("/details", authenticate, async (request, response) => {// authenticate
     try {
@@ -67,7 +76,6 @@ router.get("/details", authenticate, async (request, response) => {// authentica
 router.patch("/:id", authenticate, authorize(['user']), async (request, response) => {// authenticate, authorize('user')
     try {
         const results = await User.findByIdAndUpdate(request.user._id, request.body, { new: true });
-        console.log(results);
         return response.send(results);
     }
     catch (err) {
@@ -79,7 +87,6 @@ router.patch("/:id", authenticate, authorize(['user']), async (request, response
 router.delete("/:id", authenticate, authorize(['user', 'admin', 'superAdmin']), async (request, response) => {// authenticate, authorize('user', 'admin', 'superAdmin')
     try {
         const results = await User.findByIdAndDelete(request.params.id);
-        console.log(results);
         return response.send(results);
     }
     catch (err) {

@@ -6,7 +6,7 @@ const generateToken = (user) => {
     return jwt.sign({ user }, process.env.JWT_SECRET_KEY);
 }
 
-const regex = (password) => { 
+const regex = (password) => {
     let pattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
     if (pattern.test(password)) {
         return true;
@@ -25,7 +25,7 @@ const register = async (req, res) => {
 
         let regexPatternCheck = await regex(req.body.password);
         // This can be done using the express-validator also.
-        if (!regexPatternCheck) { 
+        if (!regexPatternCheck) {
             return res.status(501).send({ message: "Password is too weak" });
         }
 
@@ -38,7 +38,7 @@ const register = async (req, res) => {
             return res.status(200).send({ message: "Signup failed" });
         }
 
-        return res.status(200).send({ message: "success", token });
+        return res.status(200).send({ message: "Sign up Success", token });
     } catch (err) {
         return res.status(501).send({ message: err.message });
     }
@@ -49,7 +49,7 @@ const login = async (req, res) => {
         let user = await User.findOne({ email: req.body.email });
 
         if (!user) {
-            return res.status(501).send({ message: "Please try another email or password" });
+            return res.status(501).send({ message: "It seems you are a new here!" });
         }
 
         let passwordMatch = user.checkPassword(req.body.password);
@@ -62,10 +62,10 @@ const login = async (req, res) => {
         try {
             token = generateToken(user);
         } catch (err) {
-            return res.status(200).send({ message: "SignIn failed" });
+            return res.status(501).send({ message: "SignIn failed" });
         }
 
-        return res.status(200).send({ message: "success", token });
+        return res.status(200).send({ message: "Login Success", token });
     } catch (err) {
         return res.status(501).send({ message: err.message });
     }

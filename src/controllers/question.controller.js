@@ -16,7 +16,6 @@ const authorize = require('../middlewares/authorize');
 router.get("/", authenticate, authorize(['admin', 'superAdmin']), async (request, response) => {
     try {
         const results = await Question.find().lean().exec();
-        console.log(results);
         return response.send(results);
     }
     catch (err) {
@@ -55,7 +54,6 @@ router.post("/", authenticate, async (request, response) => {
 router.patch("/:id", authenticate, authorize(['user']), async (request, response) => {
     try {
         const results = await Question.findByIdAndUpdate(request.params.id, request.body, { new: true });
-        console.log(results);
         return response.send(results);
     }
     catch (err) {
@@ -67,7 +65,6 @@ router.patch("/:id", authenticate, authorize(['user']), async (request, response
 router.delete("/:id", authenticate, authorize(['user', 'admin', 'superAdmin']), async (request, response) => {
     try {
         const results = await Question.findByIdAndDelete(request.params.id);
-        console.log(results);
         return response.send(results);
     }
     catch (err) {
@@ -76,15 +73,14 @@ router.delete("/:id", authenticate, authorize(['user', 'admin', 'superAdmin']), 
 });
 
 //get all questions for a user by userId
-router.get("/user/questions", authenticate, authorise(['user', 'admin', 'superAdmin']), async (request, response) => {
+router.get("/user/questions", authenticate, authorize(['user', 'admin', 'superAdmin']), async (request, response) => {
     try {
+        //user id will be getting from the auth token 
+        const userId = request.user._id;
 
-        //user id needs to be passed in the request body
-        const { userId } = request.body;
         if (!userId) return response.status(400).send("User id is required");
 
-        const results = await Question.find(request.body);
-        console.log(results);
+        const results = await Question.find({ userId }).lean().exec();
         if (results.length === 0) return response.status(400).send("No questions found for this user");
         return response.send(results);
     }

@@ -13,17 +13,13 @@ const verifyToken = (token) => {
 }
 
 module.exports = async (req, res, next) => {
-
     if (!req.headers.authorization) {
         return res.status(401).send({ message: "Unauthorized or invalid token" });
     }
-
     if (!req.headers.authorization.startsWith("Bearer ")) {
         return res.status(401).send({ message: "Unauthorized or invalid token2" });
     }
-
     let token = req.headers.authorization.split(" ")[1];
-
     let user;
 
     try {
@@ -31,7 +27,6 @@ module.exports = async (req, res, next) => {
     } catch (err) {
         return res.status(401).send({ message: "Unauthorized or invalid token3" });
     }
-    
     req.user = user.user;
 
     // need to update when the admin role comes in
