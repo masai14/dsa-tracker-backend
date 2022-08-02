@@ -13,6 +13,7 @@ const verifyToken = (token) => {
 }
 
 module.exports = async (req, res, next) => {
+    // console.log("req.headers.authorization:", req.headers.authorization);
     if (!req.headers.authorization) {
         return res.status(401).send({ message: "Unauthorized or invalid token" });
     }

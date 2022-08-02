@@ -16,7 +16,7 @@ const authorize = require('../middlewares/authorize');
 router.get("/", authenticate, authorize(['admin', 'superAdmin']), async (request, response) => {// authenticate, authorize
     try {
         const results = await User.find().lean().exec();
-        console.log(results);
+        // console.log(results);
         return response.send(results);
     }
     catch (err) {

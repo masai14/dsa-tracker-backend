@@ -25,8 +25,10 @@ router.get("/", authenticate, authorize(['admin', 'superAdmin']), async (request
 
 //get specific Question by id
 router.get("/:id", authenticate, async (request, response) => {
+    // console.log(request.params.id);
     try {
         const question = await Question.findById(request.params.id);
+        // console.log(question);
         if (request.user.role == 'admin' || question.isPublic || question.userId === request.user._id) {
             return response.send(question);
         }
@@ -40,6 +42,7 @@ router.get("/:id", authenticate, async (request, response) => {
 
 //create Question
 router.post("/", authenticate, async (request, response) => {
+    // console.log(request.body);
     try {
         request.body.userId = request.user._id;
         const results = await Question.create(request.body);
@@ -80,9 +83,14 @@ router.get("/user/questions", authenticate, authorize(['user', 'admin', 'superAd
 
         if (!userId) return response.status(400).send("User id is required");
 
-        const results = await Question.find({ userId }).lean().exec();
-        if (results.length === 0) return response.status(400).send("No questions found for this user");
-        return response.send(results);
+        const page = request.query.page || 1;
+        const size = request.query.size || 10;
+        const questions = await Question.find({ userId }).skip((page - 1) * size).limit(size).lean().exec();
+        const totalQuestions = await Question.find({ userId }).countDocuments();
+        const totalPages = Math.ceil(totalQuestions / size);
+
+        if (questions.length === 0) return response.status(400).send("No questions found for this user");
+        return response.send({ questions, totalQuestions, totalPages });
     }
     catch (err) {
         response.status(401).send(err.message);

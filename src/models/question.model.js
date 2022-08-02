@@ -9,14 +9,14 @@ const { Schema } = mongoose;
 const questionSchema = new Schema({
 
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    title: { type: String, required: true, unique:true},
+    title: { type: String, required: true},
     topic: { type: String, require: true },
     link: { type: String, required: true },
     difficulty: { type: String, required: true },
-    intuition: { type: String },
-    description: { type: String },
-    platform: { type: String },
-    code: { type: String },
+    intuition: { type: String, default:"Add your Intuition by clicking the edit button" },
+    description: { type: String, default: "Add your Description by clicking the edit button" },
+    platform: { type: String},
+    code: { type: String, default: "Add your Code by clicking the edit button" },
     solved: { type: Boolean, default: false },
     isFav: { type: Boolean, default: false },
     isPublic: { type: Boolean, default: false }
