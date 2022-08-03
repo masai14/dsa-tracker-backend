@@ -6,6 +6,7 @@ const router = express.Router();
 
 //getting model
 const User = require("../models/user.model.js");
+const Question = require("../models/question.model.js");
 const authenticate = require('../middlewares/authenticate');
 const authorize = require('../middlewares/authorize');
 
@@ -108,5 +109,112 @@ router.delete("/:id", authenticate, authorize(['user', 'admin', 'superAdmin']), 
 //         response.status(401).send(err.message);
 //     }
 // });
+
+
+
+//get all questions for a user by userId
+router.get("/questions", authenticate, authorize(['user', 'admin', 'superAdmin']), async (request, response) => {
+    try {
+
+        // console.log(request.query.difficulty);
+        //user id will be getting from the auth token 
+        const userId = request.user._id;
+
+        if (!userId) return response.status(400).send("User id is required");
+
+        const page = request.query.page || 1;
+        const size = request.query.size || 10;
+        const filteringOptions = [{ userId }];
+        let additionalFilters = { $and: [] }
+
+        if (Boolean(request.query.favourites)) {
+            additionalFilters.$and.push({ isFav: true });
+        }
+
+        if (request.query.difficulty) {
+            additionalFilters.$and.push({
+                $or: [...request.query.difficulty.split(",").map(el => {
+                    return {
+                        "difficulty": el
+                    };
+                })]
+            });//{ $in: request.query.difficulty.split(",") }//{ "difficulty": "1" }, { "difficulty": "2" }
+        }
+
+        if (request.query.platform) {
+            additionalFilters.$and.push({
+                $or: [...request.query.platform.split(",").map(el => {
+                    return {
+                        "platform": el
+                    };
+                })]
+            });
+        }
+
+        if (request.query.status) {
+            additionalFilters.$and.push({
+                $or: [...request.query.status.split(",").map(el => {
+                    if (el == "solved") {
+                        return { solved: true };
+                    } else {
+                        return { solved: false };
+                    }
+                })]
+            });
+        }
+
+        let sortOptions = [];
+        if (request.query.sortby) {
+            if (request.query.sortby == "dataAsc") {
+                sortOptions.push("updatedAt", 1);
+            } else if (request.query.sortby == "e2h") {
+                sortOptions.push("difficulty", 1);
+            } else if (request.query.sortby == "h2e") {
+                sortOptions.push("difficulty", -1);
+            }
+        } else {
+            sortOptions.push("updatedAt", -1);
+        }
+        // console.log(additionalFilters);
+        if (additionalFilters.$and.length != 0) {
+            filteringOptions.push(additionalFilters);
+        }
+        // console.log(filteringOptions);// { userId }, { $and: [...filteringOptions] }
+        const questions = await Question.find({ $and: [...filteringOptions] }).sort([[...sortOptions]]).skip((page - 1) * size).limit(size).lean().exec();
+        // const platforms = await Question.find({ userId }).distinct("platform");
+        const platforms = await Question.aggregate([
+            {
+                $group: { _id: "$platform", count: { $sum: 1 } }
+            },
+            {
+                $sort: { _id: 1 }
+            }
+        ]);
+        // const test = await Question.aggregate([
+        //     {
+        //         "$project": {
+        //             "difficulty": {
+        //                 "$filter": {
+        //                     "input": "$difficulty",
+        //                     "as": "difficulty",
+        //                     "cond": {
+        //                         "$eq": ["$difficulty", "1"]
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // ]);
+        // console.log(test.length);
+        const totalQuestions = await Question.find({ $and: [...filteringOptions] }).countDocuments();
+        const totalPages = Math.ceil(totalQuestions / size);
+
+        if (questions.length === 0) return response.status(400).send("No questions found for this user");
+        return response.send({ questions, totalQuestions, totalPages, platforms });
+    }
+    catch (err) {
+        response.status(401).send(err.message);
+    }
+});
 
 module.exports = router;

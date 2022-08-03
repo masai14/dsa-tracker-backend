@@ -28,8 +28,7 @@ router.get("/:id", authenticate, async (request, response) => {
     // console.log(request.params.id);
     try {
         const question = await Question.findById(request.params.id);
-        // console.log(question);
-        if (request.user.role == 'admin' || question.isPublic || question.userId === request.user._id) {
+        if (request.user.role == 'admin' || question.isPublic || question.userId == request.user._id) {
             return response.send(question);
         }
         return response.status(401).send({ message: "Unauthorized" });
@@ -69,28 +68,6 @@ router.delete("/:id", authenticate, authorize(['user', 'admin', 'superAdmin']), 
     try {
         const results = await Question.findByIdAndDelete(request.params.id);
         return response.send(results);
-    }
-    catch (err) {
-        response.status(401).send(err.message);
-    }
-});
-
-//get all questions for a user by userId
-router.get("/user/questions", authenticate, authorize(['user', 'admin', 'superAdmin']), async (request, response) => {
-    try {
-        //user id will be getting from the auth token 
-        const userId = request.user._id;
-
-        if (!userId) return response.status(400).send("User id is required");
-
-        const page = request.query.page || 1;
-        const size = request.query.size || 10;
-        const questions = await Question.find({ userId }).skip((page - 1) * size).limit(size).lean().exec();
-        const totalQuestions = await Question.find({ userId }).countDocuments();
-        const totalPages = Math.ceil(totalQuestions / size);
-
-        if (questions.length === 0) return response.status(400).send("No questions found for this user");
-        return response.send({ questions, totalQuestions, totalPages });
     }
     catch (err) {
         response.status(401).send(err.message);
