@@ -1,0 +1,3 @@
+- authentication, authorization
+- admin model and controller
+- search questions
