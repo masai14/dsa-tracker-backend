@@ -28,7 +28,7 @@ const questionController = require("./src/controllers/question.controller.js");
 const userController = require("./src/controllers/user.controller.js");
 const { register, login } = require('./src/controllers/auth.controller.js');
 // we are not using the form-data, so no need of multer middileware for parsing the data express.json() will take care of that.
-app.post('/register', register);
-app.post('/login', login);
-app.use("/question", questionController);
-app.use("/user", userController);
+app.post('/api/register', register);
+app.post('/api/login', login);
+app.use("/api/question", questionController);
+app.use("/api/user", userController);
