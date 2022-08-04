@@ -1,9 +1,11 @@
 //USER CONTROLLER
 
 //create a router
+const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const ObjectId = mongoose.Types.ObjectId;
 require('dotenv').config();
 
 //getting model
@@ -202,9 +204,10 @@ router.get("/questions", authenticate, authorize(['user', 'admin', 'superAdmin']
         // console.log(filteringOptions);// { userId }, { $and: [...filteringOptions] }
         const questions = await Question.find({ $and: [...filteringOptions] }).sort(sortOptions).skip((page - 1) * size).limit(size).lean().exec();
         // const platforms = await Question.find({ userId }).distinct("platform");
+        console.log(typeof userId);
         const platforms = await Question.aggregate([{
             $match: {
-                userId
+                userId: ObjectId(userId)
             }
         },
         {
@@ -214,6 +217,7 @@ router.get("/questions", authenticate, authorize(['user', 'admin', 'superAdmin']
             $sort: { _id: 1 }
         }
         ]);
+        console.log(platforms);
         // const test = await Question.aggregate([
         //     {
         //         "$project": {
