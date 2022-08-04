@@ -1,3 +1,4 @@
+require('dotenv').config();
 // GLOBAL CONFIG ENVIRONMENT VARIABLES
 
 
