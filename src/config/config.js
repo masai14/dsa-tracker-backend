@@ -12,7 +12,7 @@ const USERNAME = "dsatracker";
 const PASSWORD = "dsatracker";
 
 //default app port
-const PORT = 2345;
+const PORT = process.env.PORT || 2345;
 
 //default connection url
 const DEFAULT_CONNECTION_STRING = `mongodb+srv://${USERNAME}:${PASSWORD}@dsatracker.1osbv.mongodb.net/${DATABASE}?retryWrites=true&w=majority`; 
