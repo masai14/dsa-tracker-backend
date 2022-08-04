@@ -202,13 +202,17 @@ router.get("/questions", authenticate, authorize(['user', 'admin', 'superAdmin']
         // console.log(filteringOptions);// { userId }, { $and: [...filteringOptions] }
         const questions = await Question.find({ $and: [...filteringOptions] }).sort(sortOptions).skip((page - 1) * size).limit(size).lean().exec();
         // const platforms = await Question.find({ userId }).distinct("platform");
-        const platforms = await Question.aggregate([
-            {
-                $group: { _id: "$platform", count: { $sum: 1 } }
-            },
-            {
-                $sort: { _id: 1 }
+        const platforms = await Question.aggregate([{
+            "$match": {
+                userId
             }
+        },
+        {
+            $group: { _id: "$platform", count: { $sum: 1 } }
+        },
+        {
+            $sort: { _id: 1 }
+        }
         ]);
         // const test = await Question.aggregate([
         //     {
