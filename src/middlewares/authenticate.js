@@ -28,6 +28,7 @@ module.exports = async (req, res, next) => {
     } catch (err) {
         return res.status(401).send({ message: "Unauthorized or invalid token3" });
     }
+    // console.log("user", user);
     req.user = user.user;
 
     // need to update when the admin role comes in

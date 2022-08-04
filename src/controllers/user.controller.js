@@ -3,6 +3,8 @@
 //create a router
 const express = require("express");
 const router = express.Router();
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 //getting model
 const User = require("../models/user.model.js");
@@ -13,6 +15,10 @@ const authorize = require('../middlewares/authorize');
 //Http Verbs will come here GET, GET by id, POST, PATCH, DELETE
 
 /* Some sample code for reference */
+
+const generateToken = (user) => {
+    return jwt.sign({ user }, process.env.JWT_SECRET_KEY);
+}
 
 router.get("/", authenticate, authorize(['admin', 'superAdmin']), async (request, response) => {// authenticate, authorize
     try {
@@ -27,9 +33,13 @@ router.get("/", authenticate, authorize(['admin', 'superAdmin']), async (request
 
 router.get("/check", authenticate, async (request, response) => {// authenticate, authorize
     try {
-        return response.send({ message: true });
+        let user = await User.findById(request.user._id);
+        let token = generateToken(user);
+        // console.log(token);
+        return response.send({ message: true, token });
     }
     catch (err) {
+        // console.log(err.message);
         response.send({ message: false });
     }
 });
@@ -44,8 +54,13 @@ router.get("/details", authenticate, async (request, response) => {// authentica
         //     return response.status(401).send({ message: "invalid id" })
         // }
 
-        // considering unable to retrive the userId from a cookie on the frontend, 
+        // considering unable to retrive the userId from a cookie on the frontend,
         // using the token to generate the user out of it.
+        // console.log(request.user);
+        delete (request.user.role);
+        delete (request.user.password);
+        delete (request.user.createdAt);
+        delete (request.user.updatedAt);
         return response.status(200).send(request.user);
     }
     catch (err) {
@@ -76,8 +91,14 @@ router.get("/details", authenticate, async (request, response) => {// authentica
 //update User by id
 router.patch("/:id", authenticate, authorize(['user']), async (request, response) => {// authenticate, authorize('user')
     try {
-        const results = await User.findByIdAndUpdate(request.user._id, request.body, { new: true });
-        return response.send(results);
+        if (request.params.id == request.user._id) {
+            // console.log(request.params.id, request.user._id, request.body, request.params.id == request.user._id)
+            const results = await User.findByIdAndUpdate(request.user._id, request.body, { new: true });
+            // console.log(results);
+            return response.send(results);
+        } else {
+            return response.status(401).send({ message: "Unauthorized" });
+        }
     }
     catch (err) {
         response.status(401).send(err.message);
@@ -88,6 +109,7 @@ router.patch("/:id", authenticate, authorize(['user']), async (request, response
 router.delete("/:id", authenticate, authorize(['user', 'admin', 'superAdmin']), async (request, response) => {// authenticate, authorize('user', 'admin', 'superAdmin')
     try {
         const results = await User.findByIdAndDelete(request.params.id);
+        // console.log(results);
         return response.send(results);
     }
     catch (err) {
@@ -163,24 +185,22 @@ router.get("/questions", authenticate, authorize(['user', 'admin', 'superAdmin']
             });
         }
 
-        let sortOptions = [];
-        if (request.query.sortby) {
-            if (request.query.sortby == "dataAsc") {
-                sortOptions.push("updatedAt", 1);
-            } else if (request.query.sortby == "e2h") {
-                sortOptions.push("difficulty", 1);
-            } else if (request.query.sortby == "h2e") {
-                sortOptions.push("difficulty", -1);
-            }
-        } else {
-            sortOptions.push("updatedAt", -1);
+        let sortOptions = { "updatedAt": -1 };
+        if (request.query.sortby == "dateAsc") {
+            sortOptions = { "updatedAt": 1 };
+        } else if (request.query.sortby == "e2h") {
+            sortOptions = { "difficulty": 1 };
+        } else if (request.query.sortby == "h2e") {
+            sortOptions = { "difficulty": -1 };
         }
+
+        // console.log(sortOptions);
         // console.log(additionalFilters);
         if (additionalFilters.$and.length != 0) {
             filteringOptions.push(additionalFilters);
         }
         // console.log(filteringOptions);// { userId }, { $and: [...filteringOptions] }
-        const questions = await Question.find({ $and: [...filteringOptions] }).sort([[...sortOptions]]).skip((page - 1) * size).limit(size).lean().exec();
+        const questions = await Question.find({ $and: [...filteringOptions] }).sort(sortOptions).skip((page - 1) * size).limit(size).lean().exec();
         // const platforms = await Question.find({ userId }).distinct("platform");
         const platforms = await Question.aggregate([
             {

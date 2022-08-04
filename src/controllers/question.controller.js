@@ -74,4 +74,14 @@ router.delete("/:id", authenticate, authorize(['user', 'admin', 'superAdmin']), 
     }
 });
 
+router.post("/search", authenticate, async (req, res) => {
+    try {
+        const questions = await Question.find({ $and: [{ userId: req.user._id }, { "title": { "$regex": req.body.key, "$options": "i" } }] });
+        // console.log(questions);
+        return res.send({ questions });
+    } catch (err) {
+        return res.status(501).send(err.message);
+    }
+})
+
 module.exports = router;
