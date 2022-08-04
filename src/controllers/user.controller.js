@@ -203,7 +203,7 @@ router.get("/questions", authenticate, authorize(['user', 'admin', 'superAdmin']
         const questions = await Question.find({ $and: [...filteringOptions] }).sort(sortOptions).skip((page - 1) * size).limit(size).lean().exec();
         // const platforms = await Question.find({ userId }).distinct("platform");
         const platforms = await Question.aggregate([{
-            "$match": {
+            $match: {
                 userId
             }
         },
