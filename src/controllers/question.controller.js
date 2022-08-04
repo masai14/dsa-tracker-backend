@@ -25,9 +25,10 @@ router.get("/", authenticate, authorize(['admin', 'superAdmin']), async (request
 
 //get specific Question by id
 router.get("/:id", authenticate, async (request, response) => {
+    // console.log(request.params.id);
     try {
         const question = await Question.findById(request.params.id);
-        if (request.user.role == 'admin' || question.isPublic || question.userId === request.user._id) {
+        if (request.user.role == 'admin' || question.isPublic || question.userId == request.user._id) {
             return response.send(question);
         }
         return response.status(401).send({ message: "Unauthorized" });
@@ -40,6 +41,7 @@ router.get("/:id", authenticate, async (request, response) => {
 
 //create Question
 router.post("/", authenticate, async (request, response) => {
+    // console.log(request.body);
     try {
         request.body.userId = request.user._id;
         const results = await Question.create(request.body);
@@ -72,21 +74,14 @@ router.delete("/:id", authenticate, authorize(['user', 'admin', 'superAdmin']), 
     }
 });
 
-//get all questions for a user by userId
-router.get("/user/questions", authenticate, authorize(['user', 'admin', 'superAdmin']), async (request, response) => {
+router.post("/search", authenticate, async (req, res) => {
     try {
-        //user id will be getting from the auth token 
-        const userId = request.user._id;
-
-        if (!userId) return response.status(400).send("User id is required");
-
-        const results = await Question.find({ userId }).lean().exec();
-        if (results.length === 0) return response.status(400).send("No questions found for this user");
-        return response.send(results);
+        const questions = await Question.find({ $and: [{ userId: req.user._id }, { "title": { "$regex": req.body.key, "$options": "i" } }] });
+        // console.log(questions);
+        return res.send({ questions });
+    } catch (err) {
+        return res.status(501).send(err.message);
     }
-    catch (err) {
-        response.status(401).send(err.message);
-    }
-});
+})
 
 module.exports = router;
