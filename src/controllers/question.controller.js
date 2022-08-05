@@ -44,6 +44,7 @@ router.post("/", authenticate, async (request, response) => {
     // console.log(request.body);
     try {
         request.body.userId = request.user._id;
+        // console.log(request.body);
         const results = await Question.create(request.body);
         return response.send(results);
     }

@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
 require('dotenv').config();
+const Question = require('../models/question.model');
 
 const generateToken = (user) => {
     return jwt.sign({ user }, process.env.JWT_SECRET_KEY);
@@ -37,6 +38,30 @@ const register = async (req, res) => {
         } catch (err) {
             return res.status(200).send({ message: "Signup failed" });
         }
+
+        const question = await Question.create({
+            title: 'Sample Question - Operations on Integers',
+            topic: 'Math,Addition',
+            description: 'You are given two numbers, perform the following operations\n' +
+                '- Add these two numbers\n' +
+                '- Mulitply the result with 5\n' +
+                '- return the final result (should be a number).\n',
+            link: 'https://leetcode.com/problems/add-two-integers/',
+            platform: 'leetcode',
+            difficulty: '1',
+            intuition: '- Storing the added result in a variable\n' +
+                '- Multiplying the store result with 5\n' +
+                '- returning the final result',
+            code: 'var sum = function (a, b){\n' +
+                '    let result = a + b;\n' +
+                '    finalResult = result * 5;\n' +
+                '    return finalResult;\n' +
+                '}',
+            solved: false,
+            isFav: false,
+            isPublic: false,
+            userId: user._id
+        });
 
         return res.status(200).send({ message: "Sign up Success", token });
     } catch (err) {

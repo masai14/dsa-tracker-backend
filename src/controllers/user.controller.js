@@ -201,10 +201,7 @@ router.get("/questions", authenticate, authorize(['user', 'admin', 'superAdmin']
         if (additionalFilters.$and.length != 0) {
             filteringOptions.push(additionalFilters);
         }
-        // console.log(filteringOptions);// { userId }, { $and: [...filteringOptions] }
-        const questions = await Question.find({ $and: [...filteringOptions] }).sort(sortOptions).skip((page - 1) * size).limit(size).lean().exec();
-        // const platforms = await Question.find({ userId }).distinct("platform");
-        console.log(typeof userId);
+        // console.log(filteringOptions, sortOptions);// { userId }, { $and: [...filteringOptions] }
         const platforms = await Question.aggregate([{
             $match: {
                 userId: ObjectId(userId)
@@ -217,7 +214,19 @@ router.get("/questions", authenticate, authorize(['user', 'admin', 'superAdmin']
             $sort: { _id: 1 }
         }
         ]);
-        console.log(platforms);
+        let questions;
+        try {
+            questions = await Question.find({ $and: [...filteringOptions] }).sort(sortOptions).skip((page - 1) * size).limit(size).lean().exec();
+        } catch (err) {
+            return response.status(400).send({ questions: [], totalPages: 1, platforms });
+        }
+        const totalQuestions = await Question.find({ $and: [...filteringOptions] }).countDocuments();
+        const totalPages = Math.ceil(totalQuestions / size);
+
+        return response.send({ questions, totalPages: Number(totalPages) === 0 ? 1 : totalPages, platforms });
+        // const platforms = await Question.find({ userId }).distinct("platform");
+        // console.log(typeof userId);
+        // console.log(platforms);
         // const test = await Question.aggregate([
         //     {
         //         "$project": {
@@ -234,11 +243,6 @@ router.get("/questions", authenticate, authorize(['user', 'admin', 'superAdmin']
         //     }
         // ]);
         // console.log(test.length);
-        const totalQuestions = await Question.find({ $and: [...filteringOptions] }).countDocuments();
-        const totalPages = Math.ceil(totalQuestions / size);
-
-        if (questions.length === 0) return response.status(400).send("No questions found for this user");
-        return response.send({ questions, totalQuestions, totalPages, platforms });
     }
     catch (err) {
         response.status(401).send(err.message);
